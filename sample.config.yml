@@ -1,0 +1,6 @@
+---
+server: https://my_pbs_server:8007
+user: my_username@pbs
+token_id: my_token_id
+token_secret: deadbeef-dead-beef-dead-beefdeadbeef
+ignore_cert: false
