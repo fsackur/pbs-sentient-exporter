@@ -1,5 +1,6 @@
+
 import re
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 
 import requests
 import urllib3
@@ -44,3 +45,42 @@ class PbsServer(BaseModel):
     def post(self, url, params: Dict | None = None, data: Dict | None = None):
         kwargs = self._request_kwargs(url, params, data)
         return requests.post(**kwargs)
+
+
+BackupType = Literal["vm"] | Literal["ct"] | Literal["host"]
+
+
+class BackupMetrics(BaseModel):
+    store: str
+    id: str
+    type: BackupType
+    last_finish_time: int
+    size: int
+
+
+def get_backup_metrics(pbs: PbsServer):
+    response = pbs.get("admin/datastore")
+    stores = response.json().get("data")
+    store_names = [s["store"] for s in stores]
+
+    for store_name in store_names:
+        response = pbs.get(f"admin/datastore/{store_name}/groups")
+        groups = response.json().get("data")
+        for group in groups:
+
+            response = pbs.get(f"admin/datastore/{store_name}/files", params={
+                "backup-id": group.get("backup-id"),
+                "backup-time": group.get("last-backup"),
+                "backup-type": group.get("backup-type"),
+            })
+
+            files = response.json().get("data")
+            size = sum([f["size"] for f in files if f["filename"] != "client.log.blob"])
+
+            yield BackupMetrics(
+                store=store_name,
+                id=group.get("backup-id"),
+                type=group.get("backup-type"),
+                last_finish_time=group.get("last-backup"),
+                size=size,
+            )
