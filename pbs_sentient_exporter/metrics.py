@@ -3,8 +3,8 @@ from prometheus_client.core import GaugeMetricFamily
 
 from .pbs import BackupGroup
 
-
 _label_names = ["datastore", "backup", "type"]
+
 
 def get_size_metric():
     return GaugeMetricFamily(

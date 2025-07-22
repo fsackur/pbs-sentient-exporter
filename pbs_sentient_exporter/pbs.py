@@ -1,12 +1,12 @@
 
 import re
+from logging import Logger
 from typing import Annotated, Any, Dict, Literal
 
 import requests
-import urllib3
 from pydantic import BaseModel, Field
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+from .logging import LogLevel, get_logger
 
 
 class PbsServerConfig(BaseModel):
@@ -18,6 +18,15 @@ class PbsServerConfig(BaseModel):
 
 
 class PbsServer(PbsServerConfig):
+    log_level: Annotated[LogLevel, Field(default="info")]
+    _logger: Logger
+
+    @property
+    def logger(self):
+        if not self._logger:
+            self._logger = get_logger("pbs", self.log_level)
+        return self._logger
+
     @property
     def auth(self):
         return f"PBSAPIToken={self.user}!{self.token_id}:{self.token_secret}"

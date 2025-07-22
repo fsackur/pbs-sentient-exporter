@@ -6,6 +6,7 @@ import yaml
 from pydantic import (AfterValidator, AliasChoices, BaseModel, BeforeValidator,
                       Field, ValidationError)
 
+from .logging import DEFAULT_LOG_LEVEL, LogLevel
 from .pbs import PbsServerConfig
 
 DEFAULT_ADDRESS = "0.0.0.0"
@@ -42,6 +43,7 @@ class ExporterConfig(BaseModel):
     client_cafile: Optional[str] = None
     client_capath: Optional[str] = None
     drop: Annotated[list[DefaultCollector], Field(default=[]), BeforeValidator(_coerce_list)]
+    log_level: Annotated[LogLevel, Field(default=DEFAULT_LOG_LEVEL)]
 
 
 class Config(ExporterConfig):
