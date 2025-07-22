@@ -1,20 +1,23 @@
 
 import re
-from typing import Any, Dict, Literal
+from typing import Annotated, Any, Dict, Literal
 
 import requests
 import urllib3
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-class PbsServer(BaseModel):
+
+class PbsServerConfig(BaseModel):
     server: str
     user: str
     token_id: str
     token_secret: str
-    ignore_cert: bool
+    ignore_cert: Annotated[bool, Field(default=False)]
 
+
+class PbsServer(PbsServerConfig):
     @property
     def auth(self):
         return f"PBSAPIToken={self.user}!{self.token_id}:{self.token_secret}"

@@ -1,8 +1,8 @@
 
 from prometheus_client.registry import REGISTRY, Collector
 
+from .map import get_last_finished_metric, get_size_metric, to_prom_metrics
 from .pbs import PbsServer, get_backup_metrics
-from .map import get_size_metric, get_last_finished_metric, to_prom_metrics
 
 
 class PbsCollector(Collector):
