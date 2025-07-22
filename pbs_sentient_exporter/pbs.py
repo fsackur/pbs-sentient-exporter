@@ -53,7 +53,7 @@ class PbsServer(PbsServerConfig):
 BackupType = Literal["vm"] | Literal["ct"] | Literal["host"]
 
 
-class BackupMetrics(BaseModel):
+class BackupGroup(BaseModel):
     store: str
     id: str
     type: BackupType
@@ -80,7 +80,7 @@ def get_backup_metrics(pbs: PbsServer):
             files = response.json().get("data")
             size = sum([f["size"] for f in files if f["filename"] != "client.log.blob"])
 
-            yield BackupMetrics(
+            yield BackupGroup(
                 store=store_name,
                 id=group.get("backup-id"),
                 type=group.get("backup-type"),

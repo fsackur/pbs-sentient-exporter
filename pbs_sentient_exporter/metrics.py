@@ -1,7 +1,7 @@
 
 from prometheus_client.core import GaugeMetricFamily
 
-from .pbs import BackupMetrics
+from .pbs import BackupGroup
 
 
 _label_names = ["datastore", "backup", "type"]
@@ -11,7 +11,6 @@ def get_size_metric():
         "backup_size",
         "sum of file sizes",
         labels=_label_names,
-        unit="B",
     )
 
 
@@ -20,11 +19,10 @@ def get_last_finished_metric():
         "backup_last_finish_time",
         "finish time of last backup",
         labels=_label_names,
-        unit="s",
     )
 
 
-def to_prom_metrics(pbs_metrics: BackupMetrics):
+def to_prom_metrics(pbs_metrics: BackupGroup):
     label_values = [pbs_metrics.store, pbs_metrics.id, pbs_metrics.type]
 
     size = get_size_metric()
