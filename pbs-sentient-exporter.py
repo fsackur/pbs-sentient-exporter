@@ -9,10 +9,13 @@ from prometheus_client import start_http_server
 
 from pbs_sentient_exporter import PbsCollector, PbsServer
 
+DEFAULT_CONFIG_PATH = "/etc/pbs-sentient-exporter/config.yml"
+DEFAULT_PORT = 8000
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Export metrics for Proxmox Backup Server to Prometheus")
-    parser.add_argument("-c", "--config", default=os.environ.get("PBS_SENTIENT_EXPORTER_CONFIG", "./config.yml"), type=argparse.FileType())
-    parser.add_argument("-p", "--port", default=os.environ.get("PBS_SENTIENT_EXPORTER_PORT", 8000), type=int)
+    parser.add_argument("-c", "--config", default=os.environ.get("PBS_SENTIENT_EXPORTER_CONFIG", DEFAULT_CONFIG_PATH), type=argparse.FileType())
+    parser.add_argument("-p", "--port", default=os.environ.get("PBS_SENTIENT_EXPORTER_PORT", DEFAULT_PORT), type=int)
     args = parser.parse_args()
 
     port = args.port
