@@ -1,7 +1,8 @@
 
 from prometheus_client.registry import REGISTRY, Collector
 
-from . import PbsServer, get_backup_metrics, to_prom_metrics
+from .pbs import PbsServer, get_backup_metrics
+from .map import get_size_metric, get_last_finished_metric, to_prom_metrics
 
 
 class PbsCollector(Collector):
@@ -11,6 +12,11 @@ class PbsCollector(Collector):
     def register(self):
         REGISTRY.register(self)
 
+    def describe(self):
+        yield get_size_metric()
+        yield get_last_finished_metric()
+
     def collect(self):
         backup_metrics = get_backup_metrics(self.pbs)
-        return (to_prom_metrics(bm) for bm in backup_metrics)
+        for bm in backup_metrics:
+            yield from to_prom_metrics(bm)

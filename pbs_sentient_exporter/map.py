@@ -1,14 +1,36 @@
 
 from prometheus_client.core import GaugeMetricFamily
 
-from . import BackupMetrics
+from .pbs import BackupMetrics
+
+
+_label_names = ["datastore", "backup", "type"]
+
+def get_size_metric():
+    return GaugeMetricFamily(
+        "backup_size",
+        "sum of file sizes",
+        labels=_label_names,
+        unit="B",
+    )
+
+
+def get_last_finished_metric():
+    return GaugeMetricFamily(
+        "backup_last_finish_time",
+        "finish time of last backup",
+        labels=_label_names,
+        unit="s",
+    )
 
 
 def to_prom_metrics(pbs_metrics: BackupMetrics):
-    size = GaugeMetricFamily("backup_size", "sum of file sizes", labels=["datastore", "backup", "type"], unit="B")
-    size.add_metric(labels=[pbs_metrics.store, pbs_metrics.id, pbs_metrics.type], value=pbs_metrics.size)
+    label_values = [pbs_metrics.store, pbs_metrics.id, pbs_metrics.type]
+
+    size = get_size_metric()
+    size.add_metric(labels=label_values, value=pbs_metrics.size)
     yield size
 
-    last = GaugeMetricFamily("backup_last_finish_time", "finish time of last backup", labels=["datastore", "backup", "type"], unit="s")
-    last.add_metric(labels=[pbs_metrics.store, pbs_metrics.id, pbs_metrics.type], value=pbs_metrics.last_finish_time)
+    last = get_last_finished_metric()
+    last.add_metric(labels=label_values, value=pbs_metrics.last_finish_time)
     yield last
