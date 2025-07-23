@@ -1,6 +1,8 @@
 
 import re
+from datetime import UTC, datetime
 from logging import Logger
+from math import floor
 from typing import Annotated, Any, Dict, Literal
 
 import requests
@@ -66,7 +68,7 @@ class BackupGroup(BaseModel):
     store: str
     id: str
     type: BackupType
-    last_finish_time: int
+    age: int
     size: int
 
 
@@ -80,19 +82,24 @@ def get_backup_metrics(pbs: PbsServer):
         groups = response.json().get("data")
         for group in groups:
 
+            last_finish_time: int = group.get("last-backup")  # UTC timestamp in seconds
+
             response = pbs.get(f"admin/datastore/{store_name}/files", params={
                 "backup-id": group.get("backup-id"),
-                "backup-time": group.get("last-backup"),
+                "backup-time": last_finish_time,
                 "backup-type": group.get("backup-type"),
             })
 
             files = response.json().get("data")
             size = sum([f["size"] for f in files if f["filename"] != "client.log.blob"])
 
+            backup_age_delta = datetime.now(UTC) - datetime.fromtimestamp(last_finish_time, UTC)
+            backup_age = floor(backup_age_delta.total_seconds())
+
             yield BackupGroup(
                 store=store_name,
                 id=group.get("backup-id"),
                 type=group.get("backup-type"),
-                last_finish_time=group.get("last-backup"),
+                age=backup_age,
                 size=size,
             )
