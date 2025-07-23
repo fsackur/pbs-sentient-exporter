@@ -24,10 +24,9 @@ if __name__ == "__main__":
         msg = urllib3.exceptions.InsecureRequestWarning("Unverified HTTPS requests are enabled.")
         logger.warning(msg)
 
-    for target in config.targets:
-        pbs = PbsServer(**target.__dict__, log_level=config.log_level)
-        collector = PbsCollector(pbs)
-        collector.register()
+    targets = [PbsServer(**t.__dict__, log_level=config.log_level) for t in config.targets]
+    collector = PbsCollector(targets)
+    collector.register()
 
     logger.info(f"Starting server on {config.listen_address}")
     start_http_server(config)

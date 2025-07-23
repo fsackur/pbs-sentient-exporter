@@ -1,18 +1,35 @@
 
+import ipaddress
 import re
 from datetime import UTC, datetime
 from logging import Logger
 from math import floor
 from typing import Annotated, Any, Dict, Literal
+from urllib.parse import urlparse
 
 import requests
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from .logging import LogLevel, get_logger
+
+_SERVER_LABELS = set()
+
+
+def _default_server_label(data: dict):
+    server = data["server"]
+    address_port = urlparse(server).netloc
+    address = address_port.split(":", maxsplit=1)[0]
+    try:
+        _ = ipaddress.ip_address(address)
+        return address
+    except ValueError:
+        hostname = address.split(".", maxsplit=1)[0]
+        return hostname
 
 
 class PbsServerConfig(BaseModel):
     server: str
+    label: Annotated[str, Field(default_factory=_default_server_label)]
     user: str
     token_id: str
     token_secret: str
@@ -22,6 +39,14 @@ class PbsServerConfig(BaseModel):
 class PbsServer(PbsServerConfig):
     log_level: Annotated[LogLevel, Field(default="info")]
     _logger: Logger
+
+    @field_validator('label', mode='after')
+    @classmethod
+    def _assert_label_unique(cls, label: str) -> str:
+        if label in _SERVER_LABELS:
+            raise ValueError(f"Duplicate label {label}")
+        _SERVER_LABELS.add(label)
+        return label
 
     @property
     def logger(self):

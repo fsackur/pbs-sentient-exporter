@@ -37,7 +37,7 @@ def _coerce_list(v):
 
 
 class ExporterConfig(BaseModel):
-    listen_address: Annotated[str, Field(default=f":{DEFAULT_PORT}"), AfterValidator(_parse_listen_address)]
+    listen_address: Annotated[str, Field(default=f"{DEFAULT_ADDRESS}:{DEFAULT_PORT}"), AfterValidator(_parse_listen_address)]
     certfile: Optional[str] = None
     keyfile: Optional[str] = None
     client_cafile: Optional[str] = None
