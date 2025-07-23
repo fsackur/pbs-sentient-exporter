@@ -3,7 +3,7 @@ from prometheus_client.core import GaugeMetricFamily
 
 from .pbs import BackupGroup
 
-_label_names = ["datastore", "backup", "type"]
+_label_names = ["backup"]
 
 
 def get_size_metric():
@@ -23,7 +23,7 @@ def get_last_finished_metric():
 
 
 def to_prom_metrics(pbs_metrics: BackupGroup):
-    label_values = [pbs_metrics.store, pbs_metrics.id, pbs_metrics.type]
+    label_values = [f"{pbs_metrics.store}/{pbs_metrics.type}/{pbs_metrics.id}"]
 
     size = get_size_metric()
     size.add_metric(labels=label_values, value=pbs_metrics.size)
