@@ -10,7 +10,7 @@ from .logging import DEFAULT_LOG_LEVEL, LogLevel
 from .pbs import PbsServerConfig
 
 DEFAULT_ADDRESS = "0.0.0.0"
-DEFAULT_PORT = 8000
+DEFAULT_PORT = 10038
 
 
 DefaultCollector = Literal["gc"] | Literal["platform"] | Literal["process"]

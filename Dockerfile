@@ -19,9 +19,10 @@ COPY ./pbs_sentient_exporter /usr/local/lib/python3.13/site-packages/pbs_sentien
 COPY ./pbs-sentient-exporter.py /usr/bin/pbs-sentient-exporter
 
 ENV PBS_SENTIENT_EXPORTER_CONFIG=/config.yml
-ENV PBS_SENTIENT_EXPORTER_PORT=8000
-
 COPY ./sample.config.yml ${PBS_SENTIENT_EXPORTER_CONFIG}
-EXPOSE ${PBS_SENTIENT_EXPORTER_PORT}
 
-CMD ["pbs-sentient-exporter"]
+ENTRYPOINT ["pbs-sentient-exporter"]
+
+ARG DEFAULT_PORT=10038
+ENV PBS_SENTIENT_EXPORTER_PORT=${DEFAULT_PORT}
+EXPOSE ${PBS_SENTIENT_EXPORTER_PORT}
